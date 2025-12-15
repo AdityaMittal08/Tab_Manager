@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LucideImageOff } from "lucide-react";
+import { LucideImageOff, X } from "lucide-react";
 
 export function TabPage() {
   const [tabs, setTabs] = useState([]);
@@ -10,6 +10,8 @@ export function TabPage() {
       setLoading(true);
       if (chrome.runtime.lastError) {
         console.log("Popup Error:", chrome.runtime.lastError.message);
+        setLoading(false);
+        return;
       }
 
       if (response && response.success) {
@@ -21,6 +23,22 @@ export function TabPage() {
       setLoading(false);
     });
   }, []);
+
+  const handleTabclick = (tabId) => {
+    chrome.runtime.sendMessage(
+      { action: "activateTab", tabId: tabId },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Failed to communicate with service worker:",
+            chrome.runtime.lastError
+          );
+        } else if (response && response.success) {
+          window.close();
+        }
+      }
+    );
+  };
 
   return (
     <div className="bg-[#EBF4DD] w-150 h-max m-0 p-0 border-8  border-[#3B4953]">
@@ -42,14 +60,18 @@ export function TabPage() {
               tabs.map((tab) => (
                 <div
                   key={tab.id}
-                  className="flex flex-col items-center justify-start p-1 h-17.5 overflow-hidden bg-[#90AB8B] rounded-lg"
+                  className="flex flex-col items-center justify-start p-1 h-17.5 overflow-hidden bg-[#90AB8B] rounded-lg relative"
                 >
+                  <X className="absolute h-3 w-3 top-1 right-1" />
                   {tab.favIconUrl ? (
                     <img className="w-7 h-7 shrink-0" src={tab.favIconUrl} />
                   ) : (
                     <LucideImageOff className="w-7 h-7 shrink-0" />
                   )}
-                  <div className="w-full text-center mt-1">
+                  <div
+                    className="w-full text-center mt-1"
+                    onClick={() => handleTabclick(tab.id)}
+                  >
                     <p className="text-md font-semibold text-white truncate hover:underline cursor-pointer">
                       {tab.title || "Untitled Tab"}
                     </p>
