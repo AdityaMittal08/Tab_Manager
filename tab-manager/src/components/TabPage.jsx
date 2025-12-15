@@ -40,6 +40,24 @@ export function TabPage() {
     );
   };
 
+  const handleRemoveClick = (e, tabId) => {
+    e.stopPropagation();
+
+    chrome.runtime.sendMessage(
+      { action: "removeTab", tabId: tabId },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Failed to communicate with service worker:",
+            chrome.runtime.lastError
+          );
+        } else if (response && response.success) {
+          setTabs((prevTabs) => prevTabs.filter((tab) => tab.id !== tabId));
+        }
+      }
+    );
+  };
+
   return (
     <div className="bg-[#EBF4DD] w-150 h-max m-0 p-0 border-8  border-[#3B4953]">
       <div className="ml-5 mr-5">
@@ -62,7 +80,10 @@ export function TabPage() {
                   key={tab.id}
                   className="flex flex-col items-center justify-start p-1 h-17.5 overflow-hidden bg-[#90AB8B] rounded-lg relative"
                 >
-                  <X className="absolute h-3 w-3 top-1 right-1" />
+                  <X
+                    className="absolute h-3 w-3 top-1 right-1"
+                    onClick={(e) => handleRemoveClick(e, tab.id)}
+                  />
                   {tab.favIconUrl ? (
                     <img className="w-7 h-7 shrink-0" src={tab.favIconUrl} />
                   ) : (
@@ -80,6 +101,11 @@ export function TabPage() {
               ))
             )}
           </div>
+          <label class="group relative flex items-center justify-between p-2 text-xl">
+  Scroll Tabs
+  <input type="checkbox" class="peer absolute left-1/2 h-full w-full -translate-x-1/2 appearance-none rounded-md" />
+  <span class="ml-4 flex h-10 w-16 shrink-0 items-center rounded-full bg-gray-300 p-1 duration-300 ease-in-out peer-checked:bg-green-400 after:h-8 after:w-8 after:rounded-full after:bg-white after:shadow-md after:duration-300 group-hover:after:translate-x-1 peer-checked:after:translate-x-6"></span>
+</label>
         </div>
       </div>
     </div>
