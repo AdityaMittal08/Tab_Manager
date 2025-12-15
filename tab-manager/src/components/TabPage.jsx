@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LucideImageOff } from "lucide-react";
 
 export function TabPage() {
   const [tabs, setTabs] = useState([]);
@@ -43,11 +44,13 @@ export function TabPage() {
                   key={tab.id}
                   className="flex flex-col items-center justify-start p-1 h-17.5 overflow-hidden bg-[#90AB8B] rounded-lg"
                 >
-                  <img className="w-7 h-7 shrink-0" src={tab.favIconUrl} />
+                  {tab.favIconUrl ? (
+                    <img className="w-7 h-7 shrink-0" src={tab.favIconUrl} />
+                  ) : (
+                    <LucideImageOff className="w-7 h-7 shrink-0" />
+                  )}
                   <div className="w-full text-center mt-1">
-                    <p
-                      className="text-md font-semibold text-white truncate"
-                    >
+                    <p className="text-md font-semibold text-white truncate hover:underline cursor-pointer">
                       {tab.title || "Untitled Tab"}
                     </p>
                   </div>

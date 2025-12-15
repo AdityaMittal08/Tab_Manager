@@ -6,11 +6,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         sendResponse({ tabs: tabArray, success: true });
       } catch (error) {
-        console.log("Erroe executing chrome.tabs.query:", error);
+        console.log("Error executing chrome.tabs.query:", error);
         sendResponse({ error: "Failed to query tabs API." })
       }
     };
     fetchTabsAndRespond();
     return true;
+  }
+
+  if(message.action === "activateTab"){
+    if(message.tabId){
+      chrome.tabs.update(message.tabId, { active: true }, (tab) => {
+        if(chrome.runtime.lastError){
+          console.log("Error activating tab:", chrome.runtime.lastError.message);
+          sendResponse({ success: false, error: chrome.runtime.lastError. message })
+        }else{
+          sendResponse({ success: true, tabId: tab.id });
+        }
+      });
+      return true;
+    }else{
+      sendResponse({ success: false, error: "Missing tabId" });
+    }
   }
 });
