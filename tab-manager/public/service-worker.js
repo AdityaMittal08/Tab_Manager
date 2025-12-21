@@ -1,17 +1,20 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action == "getTabsData") {
-    const fetchTabsAndRespond = async () => {
-      try {
-        const tabArray = await chrome.tabs.query({ currentWindow: true });
+    // 1. Query ALL tabs across ALL windows
+    chrome.tabs.query({}, (tabs) => {
+      // 2. Group tabs by their windowId
+      const groupedTabs = tabs.reduce((acc, tab) => {
+        if (!acc[tab.windowId]) {
+          acc[tab.windowId] = [];
+        }
+        acc[tab.windowId].push(tab);
+        return acc;
+      }, {});
 
-        sendResponse({ tabs: tabArray, success: true });
-      } catch (error) {
-        console.log("Error executing chrome.tabs.query:", error);
-        sendResponse({ error: "Failed to query tabs API." });
-      }
-    };
-    fetchTabsAndRespond();
-    return true;
+      // 3. Send back the grouped object
+      sendResponse({ groupedTabs: groupedTabs, success: true });
+    });
+    return true; // Keep the message port open for async response
   }
 
   if (message.action === "activateTab") {
