@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LucideImageOff, X } from "lucide-react";
+import { LucideImageOff, X, ArrowLeft } from "lucide-react";
+import { Link } from "react-router";
 
 export function TabPage() {
   const [tabsByWindow, setTabsByWindow] = useState({});
@@ -70,12 +71,25 @@ export function TabPage() {
     );
   };
 
+  const handleCloseWindow = (windowId) => {
+    const tabIds = tabsByWindow[windowId].map((t) => t.id);
+    chrome.tabs.remove(tabIds, () => {
+      setTabsByWindow((prev) => {
+        const { [windowId]: _, ...rest } = prev;
+        return rest;
+      });
+    });
+  };
+
   if (loading) return <div className="p-4">Loading tabs...</div>;
 
   return (
     <div className="bg-[#EBF4DD] w-150 h-max m-0 p-0 border-8  border-[#3B4953]">
       <div className="ml-5 mr-5">
         <div className="flex justify-center items-center">
+          <Link to="/">
+            <ArrowLeft className="absolute top-2 left-2 cursor-pointer" />
+          </Link>
           <p className="flex text-[#3B4953] font-mono mb-4 text-5xl font-bold text-heading md:text-5xl lg:text-6xl underline">
             YOUR TABS :P
           </p>
@@ -83,9 +97,17 @@ export function TabPage() {
 
         {Object.entries(tabsByWindow).map(([windowId, tabs], index) => (
           <div key={windowId}>
-            <p className="text-md font-semibold text-[#3B4953] text-xl underline">
+            <span className="text-md font-semibold text-[#3B4953] text-xl underline">
               Window {index + 1} :-
-            </p>
+            </span>
+            <button
+              onClick={() => handleCloseWindow(windowId)}
+              className="ml-4 text-xs bg-[#90AB8B] text-[#3B4953] px-2 rounded  cursor-pointer "
+            >
+              <span className="text-md font-semibold text-white">
+                Close Window
+              </span>
+            </button>
             <div className="grid grid-cols-4 gap-4 p-2 bg-[#59776A] rounded-md">
               {loading ? (
                 <p>Fetching tabs...</p>
