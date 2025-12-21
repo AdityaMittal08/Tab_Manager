@@ -56,7 +56,7 @@ export function TabPage() {
 
             // If the window has no tabs left, remove the window key entirely
             if (updatedWindowTabs.length === 0) {
-              const { [windowId]: removed, ...rest } = prev;
+              const { [windowId]: _, ...rest } = prev;
               return rest;
             }
 
@@ -97,7 +97,7 @@ export function TabPage() {
                   >
                     <X
                       className="absolute h-3 w-3 top-1 right-1"
-                      onClick={(e) => handleRemoveClick(e, tab.id)}
+                      onClick={(e) => handleRemoveClick(e, tab.id, windowId)}
                     />
                     {tab.favIconUrl ? (
                       <img className="w-7 h-7 shrink-0" src={tab.favIconUrl} />
