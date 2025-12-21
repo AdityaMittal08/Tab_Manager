@@ -1,4 +1,4 @@
-import { Leaf, Mouse } from "lucide-react";
+import { Leaf } from "lucide-react";
 import { Link } from "react-router";
 
 const Features = [
@@ -62,14 +62,6 @@ export function Title() {
               {feature.statement}
             </li>
           ))}
-
-          <li className="flex b-1 text-[#5A7863]">
-            <Mouse className="w-5 h-5 mt-0.5" />
-            <span className="font-semibold text-[#3B4953]">
-              Scroll to change Tabs:
-            </span>
-            Change your tabs with the scroll of your mouse.
-          </li>
         </ol>
       </div>
       <div className="flex justify-center items-center">

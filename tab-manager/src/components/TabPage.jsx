@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { LucideImageOff, X } from "lucide-react";
 
 export function TabPage() {
-  const [tabs, setTabs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [tabsByWindow, setTabsByWindow] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     chrome.runtime.sendMessage({ action: "getTabsData" }, (response) => {
@@ -16,8 +15,7 @@ export function TabPage() {
       }
 
       if (response && response.success) {
-        console.log(response.tabs);
-        setTabs(response.tabs);
+        setTabsByWindow(response.groupedTabs || {});
       } else {
         console.log("Service Worker failed to return tabs:", response);
       }
@@ -41,19 +39,32 @@ export function TabPage() {
     );
   };
 
-  const handleRemoveClick = (e, tabId) => {
+  const handleRemoveClick = (e, tabId, windowId) => {
     e.stopPropagation();
 
     chrome.runtime.sendMessage(
       { action: "removeTab", tabId: tabId },
       (response) => {
         if (chrome.runtime.lastError) {
-          console.error(
-            "Failed to communicate with service worker:",
-            chrome.runtime.lastError
-          );
+          console.error("Failed to communicate:", chrome.runtime.lastError);
         } else if (response && response.success) {
-          setTabs((prevTabs) => prevTabs.filter((tab) => tab.id !== tabId));
+          // 3. Update the specific window's array inside the object
+          setTabsByWindow((prev) => {
+            const updatedWindowTabs = prev[windowId].filter(
+              (tab) => tab.id !== tabId
+            );
+
+            // If the window has no tabs left, remove the window key entirely
+            if (updatedWindowTabs.length === 0) {
+              const { [windowId]: removed, ...rest } = prev;
+              return rest;
+            }
+
+            return {
+              ...prev,
+              [windowId]: updatedWindowTabs,
+            };
+          });
         }
       }
     );
@@ -71,9 +82,9 @@ export function TabPage() {
         </div>
 
         {Object.entries(tabsByWindow).map(([windowId, tabs], index) => (
-          <div>
+          <div key={windowId}>
             <p className="text-md font-semibold text-[#3B4953] text-xl underline">
-              Window {index} :-
+              Window {index + 1} :-
             </p>
             <div className="grid grid-cols-4 gap-4 p-2 bg-[#59776A] rounded-md">
               {loading ? (
