@@ -6,12 +6,12 @@ A sleek, lightweight Chrome Extension built with **React** and **Tailwind CSS**.
 
 ##  Features
 
-- ** Window Grouping**: Automatically organizes your open tabs by browser window for a clean overview.
-- ** Persistent Pinning**: Save important tabs to a dedicated section. These stay pinned even after you restart Chrome, powered by `chrome.storage`.
-- ** Instant Search**: Filter through dozens of tabs in real-time by title or URL.
-- ** Quick Navigation**: One-click switching between active tabs or opening saved pins.
-- ** Batch Management**: Close individual tabs or entire browser windows directly from the dashboard.
-- ** Custom Aesthetic**: Custom-designed UI featuring a unique color palette and matching custom scrollbars.
+-  Window Grouping: Automatically organizes your open tabs by browser window for a clean overview.
+- Persistent Pinning: Save important tabs to a dedicated section. These stay pinned even after you restart Chrome, powered by `chrome.storage`.
+- Instant Search: Filter through dozens of tabs in real-time by title or URL.
+- Quick Navigation: One-click switching between active tabs or opening saved pins.
+- Batch Management: Close individual tabs or entire browser windows directly from the dashboard.
+- Custom Aesthetic: Custom-designed UI featuring a unique color palette and matching custom scrollbars.
 
 ---
 
