@@ -9,6 +9,59 @@ export function TabPage() {
   const [pinActive, setPinActive] = useState(false);
   const [pinnedTabs, setPinnedTabs] = useState([]);
 
+  const handleDragStart = (e, tabId, sourceWindowId) => {
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({ tabId, sourceWindowId })
+    );
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e, targetWindowId) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("application/json");
+    
+    if (!data) return;
+
+    const { tabId, sourceWindowId } = JSON.parse(data);
+
+    if (sourceWindowId.toString() !== targetWindowId.toString()) {
+      
+      setTabsByWindow((prev) => {
+        const sourceTabs = prev[sourceWindowId] || [];
+        const tabToMove = sourceTabs.find((t) => t.id === tabId);
+        
+        if (!tabToMove) return prev;
+
+        const newSourceTabs = sourceTabs.filter((t) => t.id !== tabId);
+        
+        const targetTabs = prev[targetWindowId] || [];
+        const updatedTab = { ...tabToMove, windowId: parseInt(targetWindowId) };
+        const newTargetTabs = [...targetTabs, updatedTab];
+
+        return {
+          ...prev,
+          [sourceWindowId]: newSourceTabs,
+          [targetWindowId]: newTargetTabs,
+        };
+      });
+
+      chrome.runtime.sendMessage(
+        { action: "moveTab", tabId, windowId: targetWindowId },
+        (response) => {
+          if (!response || !response.success) {
+            console.error("Move failed, reverting or refreshing...");
+          }
+        }
+      );
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     chrome.runtime.sendMessage({ action: "getTabsData" }, (response) => {
@@ -221,11 +274,17 @@ export function TabPage() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-4 gap-4 p-2 bg-[#59776A] rounded-md">
+                <div className="grid grid-cols-4 gap-4 p-2 bg-[#59776A] rounded-md"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, windowId)}
+                >
+
                   {tabs.map((tab) => (
                     <div
                       key={tab.id}
-                      className="flex flex-col items-center justify-start p-1 h-17.5 overflow-hidden bg-[#90AB8B] rounded-lg relative border border-[#3B4953]/30"
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, tab.id, windowId)}
+                      className="flex flex-col items-center justify-start p-1 h-17.5 overflow-hidden bg-[#90AB8B] rounded-lg relative border border-[#3B4953]/30 cursor-grab active:cursor-grabbing hover:bg-[#A3BDA0]"
                     >
                       <Pin
                         className={`absolute h-3 w-3 top-1 left-1 cursor-pointer hover:text-white ${

@@ -62,4 +62,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: false, error: "Missing tabId" });
     }
   }
+
+  if (message.action === "moveTab") {
+    const { tabId, windowId } = message;
+    
+    // Parse windowId to integer as Chrome API expects an integer
+    const targetWindowId = parseInt(windowId, 10);
+
+    if (tabId && targetWindowId) {
+      // index: -1 moves the tab to the end of the new window
+      chrome.tabs.move(tabId, { windowId: targetWindowId, index: -1 }, (tab) => {
+        if (chrome.runtime.lastError) {
+          console.error("Error moving tab:", chrome.runtime.lastError.message);
+          sendResponse({
+            success: false,
+            error: chrome.runtime.lastError.message,
+          });
+        } else {
+          sendResponse({ success: true, tab });
+        }
+      });
+      return true; // Keep channel open for async response
+    } else {
+      sendResponse({ success: false, error: "Missing tabId or windowId" });
+    }
+  }
 });
