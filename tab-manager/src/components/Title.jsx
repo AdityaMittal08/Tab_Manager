@@ -18,6 +18,14 @@ const Features = [
     topic: "⚡Lightweight & Fast: ",
     statement: "Built with React for a snappy, responsive experience.",
   },
+  {
+    topic: "Pin tabs ",
+    statement: "Quickly access your important tabs.",
+  },
+  {
+    topic: "Drag and drop",
+    statement: "Change your tabs from one window to another rapidly.",
+  },
 ];
 
 export function Title() {
