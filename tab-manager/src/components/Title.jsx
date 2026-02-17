@@ -19,12 +19,12 @@ const Features = [
     statement: "Built with React for a snappy, responsive experience.",
   },
   {
-    topic: "Pin tabs ",
+    topic: "Pin tabs: ",
     statement: "Quickly access your important tabs.",
   },
   {
-    topic: "Drag and drop",
-    statement: "Change your tabs from one window to another rapidly.",
+    topic: "Drag and drop: ",
+    statement: "Move your tabs from one window to another rapidly.",
   },
 ];
 
