@@ -87,4 +87,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: false, error: "Missing tabId or windowId" });
     }
   }
+
+  // --- NEW: Create a new tab in a specific window ---
+  if (message.action === "createTab") {
+    const targetWindowId = parseInt(message.windowId, 10);
+    
+    if (targetWindowId) {
+      chrome.tabs.create({ windowId: targetWindowId }, (tab) => {
+        if (chrome.runtime.lastError) {
+          console.error("Error creating tab:", chrome.runtime.lastError.message);
+          sendResponse({ success: false, error: chrome.runtime.lastError.message });
+        } else {
+          sendResponse({ success: true, tab });
+        }
+      });
+      return true;
+    } else {
+      sendResponse({ success: false, error: "Missing windowId" });
+    }
+  }
+
+  // --- NEW: Create a completely new window ---
+  if (message.action === "createWindow") {
+    chrome.windows.create({}, (window) => {
+      if (chrome.runtime.lastError) {
+        console.error("Error creating window:", chrome.runtime.lastError.message);
+        sendResponse({ success: false, error: chrome.runtime.lastError.message });
+      } else {
+        sendResponse({ success: true, window });
+      }
+    });
+    return true;
+  }
 });

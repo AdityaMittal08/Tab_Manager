@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { LucideImageOff, X, ArrowLeft, Search, Pin } from "lucide-react";
-import { Link } from "react-router";
+import { LucideImageOff, X, ArrowLeft, Search, Pin, Plus } from "lucide-react";
+import { Link } from "react-router"; // (or react-router-dom depending on your setup)
 
 export function TabPage() {
   const [tabsByWindow, setTabsByWindow] = useState({});
@@ -131,6 +131,18 @@ export function TabPage() {
     });
   };
 
+  const handleCreateNewTab = (windowId) => {
+    chrome.runtime.sendMessage(
+      { action: "createTab", windowId: windowId },
+    );
+  };
+
+  const handleCreateNewWindow = () => {
+    chrome.runtime.sendMessage(
+      { action: "createWindow" },
+    );
+  };
+
   const filteredTabsByWindow = useMemo(() => {
     if (!searchQuery.trim()) return tabsByWindow;
 
@@ -150,11 +162,7 @@ export function TabPage() {
   }, [searchQuery, tabsByWindow]);
 
   const pinActivation = () => {
-    if (!pinActive) {
-      setPinActive(true);
-    } else {
-      setPinActive(false);
-    }
+    setPinActive(!pinActive);
   };
 
   const handlePinTabs = (tab) => {
@@ -185,8 +193,8 @@ export function TabPage() {
     return <div className="p-4 font-mono bg-[#EBF4DD]">Loading tabs...</div>;
 
   return (
-    <div className="bg-[#EBF4DD] w-150 h-145 overflow-y-auto custom-scrollbar border-8 border-[#3B4953] m-0 p-0">
-      <div className="ml-5 mr-5">
+    <div className="bg-[#EBF4DD] w-150 h-145 overflow-y-auto custom-scrollbar border-8 border-[#3B4953] m-0 p-0 relative">
+      <div className="ml-5 mr-5 relative">
         <div className="flex justify-center items-center relative py-2">
           <Link to="/">
             <ArrowLeft className="absolute top-3 left-0 cursor-pointer text-[#3B4953]" />
@@ -194,13 +202,23 @@ export function TabPage() {
           <p className="text-[#3B4953] font-mono text-5xl font-bold underline">
             YOUR TABS :P
           </p>
+
+          {/* New Window Button */}
+          <div 
+            className="absolute top-2 right-8 cursor-pointer text-[#3B4953] flex items-center justify-center hover:bg-[#90AB8B]/30 p-1 rounded-full transition-colors"
+            onClick={handleCreateNewWindow}
+            title="Create New Window"
+          >
+            <Plus className="h-6 w-6" />
+          </div>
+
           <Pin
             className="absolute top-3 right-0 cursor-pointer text-[#3B4953]"
             onClick={pinActivation}
           />
         </div>
 
-        {pinActive ? (
+        {pinActive && (
           <div className="mb-8">
             <div className="flex items-center mb-2">
               <span className="text-xl font-mono font-bold text-[#3B4953] underline flex items-center gap-2">
@@ -235,11 +253,9 @@ export function TabPage() {
               ))}
             </div>
           </div>
-        ) : (
-          <></>
         )}
 
-        <div className="relative w-full mb-6">
+        <div className="relative w-full mb-6 mt-4">
           <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-[#3B4953]" />
           </div>
@@ -266,19 +282,19 @@ export function TabPage() {
                   </span>
                   <button
                     onClick={() => handleCloseWindow(windowId)}
-                    className="ml-4 text-xs bg-[#90AB8B] text-[#3B4953] px-2 py-1 rounded cursor-pointer border border-[#3B4953] hover:bg-red-400"
+                    className="ml-4 text-xs bg-[#90AB8B] text-[#3B4953] px-2 py-1 rounded cursor-pointer border border-[#3B4953] hover:bg-red-400 hover:text-white transition-colors"
                   >
-                    <span className="text-xs font-mono text-white">
+                    <span className="text-xs font-mono">
                       Close Window
                     </span>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-4 gap-4 p-2 bg-[#59776A] rounded-md"
+                <div 
+                  className="grid grid-cols-4 gap-4 p-2 bg-[#59776A] rounded-md"
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, windowId)}
                 >
-
                   {tabs.map((tab) => (
                     <div
                       key={tab.id}
@@ -322,6 +338,15 @@ export function TabPage() {
                       </div>
                     </div>
                   ))}
+
+                  {/* The New Tab Button for this specific window */}
+                  <div
+                    onClick={() => handleCreateNewTab(windowId)}
+                    title="Create new tab in this window"
+                    className="flex flex-col items-center justify-center p-1 h-17.5 overflow-hidden bg-[#90AB8B]/30 rounded-lg relative border-2 border-dashed border-[#3B4953]/50 cursor-pointer hover:bg-[#90AB8B]/60 hover:border-[#3B4953] transition-all group"
+                  >
+                    <Plus className="h-8 w-8 text-[#3B4953]/50 group-hover:text-[#3B4953] transition-colors" />
+                  </div>
                 </div>
               </div>
             )
